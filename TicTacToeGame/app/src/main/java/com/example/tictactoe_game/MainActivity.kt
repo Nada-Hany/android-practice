@@ -74,6 +74,13 @@ class MainActivity : AppCompatActivity() {
                     winner.setText("${inCell[x][y]} won!")
                     playerTurnText.setText("")
                     playAgianButton.visibility = View.VISIBLE
+                }else{
+                    if(!checkForDraw()){
+                        gameDone = true
+                        winner.setText("draw!")
+                        playerTurnText.setText("")
+                        playAgianButton.visibility = View.VISIBLE
+                    }
                 }
             }
         }
@@ -109,8 +116,15 @@ class MainActivity : AppCompatActivity() {
         return false
     }
 
-    fun checkForDraw(){
-
+    fun checkForDraw():Boolean{
+        var emptyCells = false
+        for (row in inCell){
+            for(cell in row){
+                if(cell == "null")
+                    emptyCells = true
+            }
+        }
+        return emptyCells
     }
     fun pressed22(view: View) {
         setXO( 2, 2)
