@@ -1,9 +1,12 @@
 package com.example.metro
 
+import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.widget.ArrayAdapter
 import android.widget.EditText
+import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import java.io.BufferedReader
@@ -11,19 +14,22 @@ import java.io.File
 
 class GetDirectionsActivity : AppCompatActivity() {
     //lateinit var metro:Metro
-    lateinit var fromStationText:EditText
-    lateinit var toStationText:EditText
+    lateinit var fromStationText:Spinner
+    lateinit var toStationText:Spinner
     lateinit var dataText:TextView
 
     var lastSTart = "-1"
     var lastEnd = "-1"
+    var pressed = false
 
     val metroLine1:MutableList<String> = mutableListOf()
     val metroLine2:MutableList<String> = mutableListOf()
     val metroLine3:MutableList<String> = mutableListOf()
     val possibleRoute:MutableList<String> = mutableListOf()
     val directions:MutableList<String> = mutableListOf()
-    var isSame = false
+    val list:MutableList<String> = mutableListOf()
+
+    var player: MediaPlayer?=null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,23 +37,19 @@ class GetDirectionsActivity : AppCompatActivity() {
         fromStationText = findViewById(R.id.fromStationText)
         toStationText = findViewById(R.id.toStationText)
         dataText = findViewById(R.id.dataText)
-       getLines()
+        getLines()
 
-
-        //will it be an issue?
-//        directions.clear()
-//        possibleRoute.clear()
+        val adapter= ArrayAdapter(this,android.R.layout.simple_list_item_1,list)
+        fromStationText.adapter = adapter
+        toStationText.adapter = adapter
     }
 
     //action for button
     fun getPath(view: View) {
-        isSame = false
         possibleRoute.clear()
         directions.clear()
-        val startStation = fromStationText.text.toString()
-        val endStation = toStationText.text.toString()
-        if(startStation == lastSTart && endStation == lastEnd)
-            isSame = true
+        val startStation = fromStationText.selectedItem.toString()
+        val endStation = toStationText.selectedItem.toString()
         lastEnd = endStation
         lastSTart = startStation
         if(endStation == "" || startStation == "") {
@@ -109,6 +111,10 @@ class GetDirectionsActivity : AppCompatActivity() {
         getOutput()
     }
 
+
+    fun displayPath(){
+
+    }
     fun getLines(){
         metroLine1.addAll(
             mutableListOf("new el marg","el marg","ezbet el nakhl","ain shams","el matarya","helmyet el zaytoun","hadayeq el zaytoun",
@@ -130,6 +136,10 @@ class GetDirectionsActivity : AppCompatActivity() {
             "stadium","fair zone","abbasia","abdo basha","el geish","bab el shaaria","attaba","gamal abdel nasser","maspero",
             "safaa hegazy","kitkat","sudan street","imbaba")
         )
+        list.addAll(metroLine1)
+        list.addAll(metroLine2)
+        list.addAll(metroLine3)
+        list.add(0, "select station")
     }
 
     fun getOneLineStations(start:String, end:String, metroLine:List<String>, direction: MutableList<String>): List<String>{
@@ -185,8 +195,7 @@ class GetDirectionsActivity : AppCompatActivity() {
     }
 
     fun getOutput(){
-        if(!isSame)
-            dataText.text = ""
+        dataText.text = ""
         val twoDirections = possibleRoute.indexOf("2")
         val totalStation = possibleRoute.size
         if(twoDirections != -1){
@@ -196,42 +205,47 @@ class GetDirectionsActivity : AppCompatActivity() {
                     "total of  $firstRouteStation stations, you'll be taking the ${directions[0]}" +
                     "until -el shohadaa- station then change directions and take the ${directions[1]}" +
                     "until you reach your destination\n"
-            if(!isSame)
-                dataText.append(s)
+            dataText.append(s)
             s=""
             for (station in route1) {
                 s += "$station - "
             }
-            if(!isSame)
-                dataText.append(s)
+
+            dataText.append(s)
+            dataText.append("\n")
+
             val route2 = possibleRoute.slice(twoDirections+1..possibleRoute.size-1).distinct()
             val secondRouteStation = route2.size
             s = "route 2 -> will take around ${secondRouteStation*2} minutes with" +
                     "total of  $secondRouteStation stations, you'll be taking the ${directions[2]}" +
                     "until -el sadat- station then change directions and take the ${directions[3]}" +
                     "until you reach your destination\n"
-            if(!isSame)
-                dataText.append(s)
+            dataText.append(s)
             s=""
             for (station in route2) {
                 s += "$station - "
             }
-
-            if(!isSame)
-                dataText.append(s)
+            dataText.append(s)
+            dataText.append("\n")
         }
         else{
-            if(!isSame) {
-                dataText.append("you will take around ${totalStation * 2} minutes\n")
-                dataText.append("you'll be taking the ${directions[0]} direction\n")
-                dataText.append("stations:")
-            }
+            dataText.append("you will take around ${totalStation * 2} minutes\n")
+            dataText.append("you'll be taking the ${directions[0]} direction\n")
+            dataText.append("stations:\n")
             var s =""
             for(station in possibleRoute)
                 s += "$station - "
-            if(!isSame)
-                dataText.append(s)
+            dataText.append(s)
         }
+        player=MediaPlayer.create(this,R.raw.done)
+        player!!.start()
+    }
+
+    fun swap(view: View) {
+        val fromStationIndex = fromStationText.selectedItemPosition
+        fromStationText.setSelection(toStationText.selectedItemPosition)
+        toStationText.setSelection((fromStationIndex))
+        getPath(view)
     }
 
 }

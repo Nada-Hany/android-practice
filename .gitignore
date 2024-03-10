@@ -1,0 +1,9 @@
+.gradle/
+build/
+*.log
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+output.json
+local.properties
