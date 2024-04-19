@@ -7,3 +7,13 @@ captures/
 *.apk
 output.json
 local.properties
+.navigation
+.DS_Store
+output.json 
+.class
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml

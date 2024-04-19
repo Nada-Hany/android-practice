@@ -111,7 +111,6 @@ class GetDirectionsActivity : AppCompatActivity() {
         getOutput()
     }
 
-
     fun displayPath(){
 
     }
